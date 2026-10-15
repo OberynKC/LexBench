@@ -1,0 +1,73 @@
+name: 构建候选测试安装包
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    if: github.ref == 'refs/heads/main'
+    name: ${{ matrix.platform }} / ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            platform: windows
+            arch: x64
+            target: win
+            extension: exe
+          - runner: macos-15
+            platform: macos
+            arch: arm64
+            target: mac
+            extension: dmg
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: 确认运行器架构
+        run: node -e "require('node:assert/strict').equal(process.arch, '${{ matrix.arch }}')"
+      - name: 安装锁定依赖
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: 安装 Electron 二进制
+        run: node node_modules/electron/install.js
+      - name: 针对 Electron 重建 SQLite
+        run: npm run rebuild:native
+      - name: 数据库冒烟
+        run: npm run smoke:db
+      - name: 备份与恢复冒烟
+        run: npm run smoke:backup
+      - name: 搜索冒烟
+        run: npm run smoke:search
+      - name: 演示内容与农历冒烟
+        run: npm run smoke:content
+      - name: 导出冒烟
+        run: npm run smoke:export
+      - name: IPC 与并发保护冒烟
+        run: npm run smoke:ipc
+      - name: 构建、打包、包内检查与校验和
+        run: npm run dist:${{ matrix.target }}
+      - name: 保存候选安装包（尚需人工验收）
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: LexBench-${{ matrix.platform }}-${{ matrix.arch }}-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+          path: |
+            release/LexBench-*.${{ matrix.extension }}
+            release/LexBench-*.${{ matrix.extension }}.sha256
+            release/build-info-${{ matrix.platform }}-${{ matrix.arch }}.json

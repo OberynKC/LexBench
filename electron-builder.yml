@@ -1,0 +1,65 @@
+appId: com.oberyn.lexbench
+productName: 律衡
+directories:
+  output: release
+  buildResources: build
+files:
+  - dist/**/*
+  - dist-electron/main.cjs
+  - dist-electron/preload.cjs
+  - package.json
+  - '!**/*.map'
+  # better-sqlite3 v13 原生模块位于 prebuilds/；非目标架构由 scripts/package.cjs 在打包前临时移出
+asar: true
+asarUnpack:
+  - '**/*.node'
+npmRebuild: true
+extraResources:
+  - from: LICENSE
+    to: LICENSE
+  - from: THIRD_PARTY_NOTICES.md
+    to: THIRD_PARTY_NOTICES.txt
+  - from: build/icon.png
+    to: icon.png
+  - from: build/icon-LICENSE
+    to: icon-LICENSE
+mac:
+  target:
+    - target: dmg
+      arch: [arm64]
+  artifactName: LexBench-${version}-macos-${arch}.${ext}
+  icon: build/icon.icns
+  category: public.app-category.productivity
+  # 内部测试用 ad-hoc 签名，不读取本机 Developer ID，不提交 Apple 公证。
+  identity: '-'
+  notarize: false
+  hardenedRuntime: true
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+dmg:
+  title: 律衡 ${version}
+  contents:
+    - x: 130
+      y: 160
+    - x: 410
+      y: 160
+      type: link
+      path: /Applications
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  artifactName: LexBench-${version}-windows-${arch}.${ext}
+  icon: build/icon.ico
+  executableName: LexBench
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: true
+  installerLanguages: [zh_CN]
+  language: '2052'
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 律衡
+  deleteAppDataOnUninstall: false

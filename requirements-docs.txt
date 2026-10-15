@@ -1,0 +1,5 @@
+reportlab==5.0.1
+mistune==3.3.4
+fonttools==4.66.1
+pypdfium2==5.14.0
+pillow==12.3.0

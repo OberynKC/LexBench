@@ -1,0 +1,50 @@
+name: 源码检查
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, windows-2022]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: 安装锁定依赖
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: 准备 Electron
+        run: node node_modules/electron/install.js
+      - name: 重建 SQLite
+        run: npm run rebuild:native
+      - name: 类型检查与构建
+        run: npm run build
+      - name: 数据库
+        run: npm run smoke:db
+      - name: 备份恢复
+        run: npm run smoke:backup
+      - name: 数据导出
+        run: npm run smoke:export
+      - name: IPC 与并发保护
+        run: npm run smoke:ipc
+      - name: 全局搜索
+        run: npm run smoke:search
+      - name: 演示内容与农历
+        run: npm run smoke:content

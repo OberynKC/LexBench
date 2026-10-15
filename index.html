@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>律衡</title>
+    <script>
+      // 防主题闪烁：首屏渲染前按本地存储（无记录则跟随系统）恢复暗色类，与 Layout 中 useDarkMode 的判定一致
+      ;(function () {
+        var t = localStorage.getItem('lex-theme')
+        if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark')
+        }
+      })()
+    </script>
+    <style>
+      /* 首屏底色，避免样式加载完成前闪白；与 src/index.css 的 --bg-base 一致 */
+      html {
+        background-color: #f5f6f8;
+      }
+      html.dark {
+        background-color: #121316;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

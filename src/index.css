@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* 设计变量：语义层颜色、边框、填充与浮层阴影，明暗两套。
+     Tailwind 语义色（base/sidebar/surface/field/hover/active/line/ink）在此取值。 */
+  :root {
+    --bg-base: #f5f6f8;
+    --bg-sidebar: #eff0f4;
+    --bg-surface: #ffffff;
+    --bg-field: #ffffff;
+    --bg-hover: rgb(29 33 41 / 0.05);
+    --bg-active: rgb(29 33 41 / 0.09);
+    --line-1: rgb(29 33 41 / 0.06);
+    --line-2: rgb(29 33 41 / 0.1);
+    --line-3: rgb(29 33 41 / 0.16);
+    --ink-1: #1d2129;
+    --ink-2: #4b5160;
+    --ink-3: #7a8090;
+    --ink-4: #a3a8b4;
+    --shadow-pop: 0 2px 8px rgb(16 20 28 / 0.06), 0 10px 32px rgb(16 20 28 / 0.12);
+  }
+
+  html.dark {
+    --bg-base: #121316;
+    --bg-sidebar: #17191d;
+    --bg-surface: #1e2026;
+    --bg-field: #282b32;
+    --bg-hover: rgb(255 255 255 / 0.06);
+    --bg-active: rgb(255 255 255 / 0.11);
+    --line-1: rgb(255 255 255 / 0.06);
+    --line-2: rgb(255 255 255 / 0.11);
+    --line-3: rgb(255 255 255 / 0.18);
+    --ink-1: #e9ebef;
+    --ink-2: #b7bbc5;
+    --ink-3: #878d9a;
+    --ink-4: #5d626d;
+    --shadow-pop: 0 2px 8px rgb(0 0 0 / 0.4), 0 12px 40px rgb(0 0 0 / 0.55);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* 暗色下让原生控件（select 弹层、滚动条等）跟随系统暗色外观 */
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-base text-ink;
+  }
+  /* 选区与品牌色协调 */
+  ::selection {
+    background: rgb(44 86 135 / 0.24);
+  }
+  /* 数字等宽 */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* 全局细滚动条：6px，透明轨道，仅浮层悬停时可见性更强 */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgb(29 33 41 / 0.18);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(29 33 41 / 0.3);
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  html.dark ::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 0.16);
+  }
+  html.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgb(255 255 255 / 0.28);
+  }
+
+  /* macOS 无边框标题栏的窗口拖拽区；仅 macOS 渲染（Layout 按平台挂载） */
+  .app-drag {
+    -webkit-app-region: drag;
+  }
+  .app-no-drag {
+    -webkit-app-region: no-drag;
+  }
+}

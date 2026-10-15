@@ -1,0 +1,41 @@
+name: 故障反馈
+description: 使用虚构数据说明复现步骤
+title: "[故障] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请勿上传真实数据库、备份、合同、案号、联系方式或案件附件。截图须去除敏感信息。
+        安全漏洞请按 SECURITY.md 私下报告，不在公开 Issue 中披露。
+  - type: input
+    id: version
+    attributes:
+      label: 应用版本
+      placeholder: 0.3.0
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: 系统版本与架构
+      placeholder: macOS 15 / Apple Silicon，或 Windows 11 / x64
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 使用虚构数据的复现步骤
+      description: 写明入口、操作、预期结果和实际结果；不填写真实业务信息。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 脱敏后的错误信息或截图
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 隐私检查
+      options:
+        - label: 已确认本反馈及附件不含真实案件资料或个人敏感信息。
+          required: true

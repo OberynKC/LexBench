@@ -1,0 +1,79 @@
+{
+  "name": "lexbench",
+  "productName": "律衡",
+  "version": "0.3.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "author": "OberynKC <kangchen.1019@gmail.com>",
+  "repository": "github:OberynKC/LexBench",
+  "type": "module",
+  "description": "面向中国执业律师的个人工作台 · 本地数据优先",
+  "main": "dist-electron/main.cjs",
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:vite\" \"npm:dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on http://localhost:5173 && npm run electron:build && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .",
+    "electron:build": "esbuild electron/main.ts electron/preload.ts --bundle --platform=node --format=cjs --external:electron --external:better-sqlite3 --external:exceljs --external:archiver --external:jszip --outdir=dist-electron --out-extension:.js=.cjs",
+    "build": "tsc --noEmit && vite build && npm run electron:build",
+    "preview": "vite preview",
+    "rebuild:native": "electron-rebuild -f -w better-sqlite3",
+    "smoke:content": "esbuild scripts/smoke-content.ts --bundle --platform=node --format=cjs --outfile=dist-electron/content-smoke.cjs && node dist-electron/content-smoke.cjs",
+    "smoke:search": "esbuild scripts/smoke-search.ts --bundle --platform=node --format=cjs --outfile=dist-electron/search-smoke.cjs && node dist-electron/search-smoke.cjs",
+    "setup": "npm ci --ignore-scripts --no-audit --no-fund && node node_modules/electron/install.js && npm run rebuild:native",
+    "smoke:db": "esbuild scripts/smoke-db.ts --bundle --platform=node --format=cjs --external:better-sqlite3 --outdir=dist-electron --out-extension:.js=.cjs && cross-env ELECTRON_RUN_AS_NODE=1 electron dist-electron/smoke-db.cjs",
+    "smoke:export": "esbuild scripts/smoke-export.ts --bundle --platform=node --format=cjs --external:better-sqlite3 --external:exceljs --external:archiver --external:jszip --outfile=dist-electron/export-smoke.cjs && cross-env ELECTRON_RUN_AS_NODE=1 electron dist-electron/export-smoke.cjs",
+    "smoke:ipc": "esbuild scripts/smoke-ipc.ts --bundle --platform=node --format=cjs --alias:electron=./scripts/fixtures/electron.ts --external:better-sqlite3 --external:exceljs --external:archiver --external:jszip --outfile=dist-electron/ipc-smoke.cjs && cross-env ELECTRON_RUN_AS_NODE=1 electron dist-electron/ipc-smoke.cjs",
+    "smoke:backup": "esbuild scripts/smoke-backup.ts --bundle --platform=node --format=cjs --alias:electron=./scripts/fixtures/electron.ts --external:better-sqlite3 --external:exceljs --external:archiver --external:jszip --outfile=dist-electron/backup-smoke.cjs && cross-env ELECTRON_RUN_AS_NODE=1 electron dist-electron/backup-smoke.cjs",
+    "verify:package": "node scripts/verify-package.cjs",
+    "docs:pdf": "python scripts/build-user-manual.py",
+    "docs:check": "python scripts/check-user-manual.py",
+    "release:metadata": "node scripts/release-metadata.cjs",
+    "dist:mac": "npm run build && node scripts/package.cjs mac && npm run verify:package && npm run release:metadata",
+    "dist:win": "npm run build && node scripts/package.cjs win && npm run verify:package && npm run release:metadata"
+  },
+  "dependencies": {
+    "archiver": "8.0.0",
+    "better-sqlite3": "13.0.3",
+    "clsx": "^2.1.1",
+    "crc-32": "1.2.2",
+    "dayjs": "^1.11.13",
+    "exceljs": "4.4.0",
+    "jszip": "3.10.1",
+    "lucide-react": "^0.454.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "tailwind-merge": "^2.5.4",
+    "yauzl": "3.4.0"
+  },
+  "devDependencies": {
+    "@electron/asar": "3.4.1",
+    "@electron/rebuild": "4.2.1",
+    "@types/archiver": "^8.0.0",
+    "@types/better-sqlite3": "7.6.13",
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/yauzl": "3.4.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
+    "cross-env": "7.0.3",
+    "electron": "44.7.0",
+    "electron-builder": "26.15.3",
+    "esbuild": "^0.24.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "wait-on": "^8.0.1"
+  },
+  "engines": {
+    "node": ">=22.23.3"
+  },
+  "overrides": {
+    "exceljs": {
+      "unzipper": "0.12.3"
+    }
+  }
+}
